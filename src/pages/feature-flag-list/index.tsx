@@ -4,21 +4,25 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { faker } from "@faker-js/faker";
 import {
   Box,
   Button,
-  Grid,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Switch,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { ChangeEvent, ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import Fuse from "fuse.js";
 import { Link } from "react-router-dom";
+import { useQuery } from "react-query";
+import { fetchMetadata } from "../../api";
 faker.seed(123);
 
 interface Column {
@@ -75,7 +79,8 @@ const columns: readonly Column[] = [
     format: (v) => v.toLocaleDateString(),
   },
 ];
-const Scopes = ["Gobal", "Regional", "Account", "Project", "Account"];
+
+const Scopes = ["EU_WEST_3", "GRANULAR", "US_EAST_1"];
 
 function xDaysAgo(x: number) {
   const d = new Date();
@@ -139,17 +144,37 @@ const rows = [
 ];
 const searchableRows = new Fuse(rows, { keys: ["name"], includeMatches: true });
 
-const filterRows = (options: { name: string }): Fuse.FuseResult<Data>[] => {
-  return options.name.length > 0
-    ? searchableRows.search(options.name)
-    : rows.map((item, index) => ({ item, score: 1, refIndex: index }));
+const filterRows = (options: {
+  name: string;
+  scope: string | "ALL";
+}): Data[] => {
+  const res =
+    options.name.length > 0
+      ? searchableRows.search(options.name).map((res) => res.item)
+      : rows;
+  if (options.scope.length > 0 && options.scope !== "ALL") {
+    return res.filter((i) => i.scope === options.scope);
+  } else {
+    return res;
+  }
 };
 
 export default function FeatureFlagsList() {
   const [queryName, setQueryName] = useState("");
+  const [filterScope, setFilterScope] = useState("");
   const data = filterRows({
     name: queryName,
+    scope: filterScope,
   });
+  const { isLoading: metadataLoading, data: metadata } = useQuery(
+    "metadatas",
+    fetchMetadata,
+    {
+      onSuccess(data) {
+        setFilterScope("ALL");
+      },
+    }
+  );
   return (
     <>
       <Box
@@ -169,13 +194,31 @@ export default function FeatureFlagsList() {
       </Box>
 
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <Box pt={5} pb={2} pl={2}>
-          <TextField
-            id="outlined-read-only-input"
-            label="Filter by name"
-            value={queryName}
-            onChange={(e) => setQueryName(e.currentTarget.value)}
-          />
+        <Box sx={{ display: "flex" }}>
+          <Box pt={5} pb={2} pl={2}>
+            <TextField
+              id="outlined-read-only-input"
+              label="Filter by name"
+              value={queryName}
+              onChange={(e) => setQueryName(e.currentTarget.value)}
+            />
+          </Box>
+          <Box pt={5} pb={2} pl={2}>
+            <FormControl sx={{ minWidth: 200 }} disabled={metadataLoading}>
+              <InputLabel id="demo-simple-select-label">Scope</InputLabel>
+              <Select
+                value={filterScope}
+                label="Scope"
+                onChange={(v) => setFilterScope(v.target.value)}
+              >
+                {metadata?.scopes.map((m) => (
+                  <MenuItem key={m.key} value={m.key}>
+                    {m.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
         <TableContainer>
           <Table>
@@ -193,7 +236,7 @@ export default function FeatureFlagsList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map(({ item }) => {
+              {data.map((item) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={item.id}>
                     {columns.map((column) => {
