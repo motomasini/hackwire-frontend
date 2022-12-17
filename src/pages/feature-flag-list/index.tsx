@@ -11,6 +11,7 @@ import {
   Button,
   FormControl,
   InputLabel,
+  ListSubheader,
   MenuItem,
   Select,
   Switch,
@@ -23,6 +24,7 @@ import Fuse from "fuse.js";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-query";
 import { fetchMetadata } from "../../api";
+import React from "react";
 faker.seed(123);
 
 interface Column {
@@ -211,11 +213,16 @@ export default function FeatureFlagsList() {
                 label="Scope"
                 onChange={(v) => setFilterScope(v.target.value)}
               >
-                {metadata?.scopes.map((m) => (
-                  <MenuItem key={m.key} value={m.key}>
-                    {m.name}
-                  </MenuItem>
-                ))}
+                {metadata?.map((m) => {
+                  return [
+                    <ListSubheader>{m.name}</ListSubheader>,
+                    m.options.map((o) => (
+                      <MenuItem key={o.key} value={o.key}>
+                        {o.name}
+                      </MenuItem>
+                    )),
+                  ];
+                })}
               </Select>
             </FormControl>
           </Box>
