@@ -23,8 +23,8 @@ import { ReactNode, useState } from "react";
 import Fuse from "fuse.js";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-query";
-import { fetchMetadata } from "../../api";
-import React from "react";
+import { fetchMetadata, fetchEnvs, ScopeEnv } from "../../api";
+
 faker.seed(123);
 
 interface Column {
@@ -66,7 +66,7 @@ const columns: readonly Column[] = [
     label: "Created At",
     minWidth: 170,
     align: "right",
-    format: (v) => v.toLocaleDateString(),
+    format: (v) => v.toLocaleString(),
   },
   {
     id: "enabled",
@@ -78,7 +78,7 @@ const columns: readonly Column[] = [
     id: "updated_at",
     label: "Updated At",
     minWidth: 170,
-    format: (v) => v.toLocaleDateString(),
+    format: (v) => v.toLocaleString(),
   },
 ];
 
@@ -91,7 +91,7 @@ function xDaysAgo(x: number) {
 }
 
 interface Data {
-  id: number;
+  id: string;
   name: string;
   desc: string;
   scope: string;
@@ -100,6 +100,22 @@ interface Data {
   updated_at: Date;
 }
 
+// FIXME: temp adapter
+function mapScopedEnvToData(env: ScopeEnv): Data {
+  console.log(env);
+  let ret = {
+    id: env.key,
+    name: env.name,
+    desc: env.description,
+    scope: env.appliesTo || "ALL",
+    enabled: env.value === "true" || env.value === true,
+    created_at: new Date(env.createdAt * 1000),
+    updated_at: new Date(env.createdAt * 1000),
+  }
+  return ret;
+}
+
+/*
 function createData(name: string): Data {
   return {
     id: faker.datatype.number({ min: 2000, max: 2200 }),
@@ -159,21 +175,48 @@ const filterRows = (options: {
   } else {
     return res;
   }
-};
+};*/
+
 
 export default function FeatureFlagsList() {
   const [queryName, setQueryName] = useState("");
   const [filterScope, setFilterScope] = useState("");
-  const data = filterRows({
-    name: queryName,
-    scope: filterScope,
-  });
+  const [data, setData] = useState([] as Data[]);
+
+  const searchableData = new Fuse(data, { keys: ["name"], includeMatches: true });
+  const filterData = (options: {
+    name: string;
+    scope: string | "ALL";
+  }): Data[] => {
+    const res =
+      options.name.length > 0
+        ? searchableData.search(options.name).map((res) => res.item)
+        : data;
+    console.log(res);
+    if (options.scope.length > 0 && options.scope !== "ALL") {
+      var filtered = res.map((i) => i.scope);
+      return res.filter((i) => (i.scope === options.scope));
+    } else {
+      return res;
+    }
+  };
+  var filteredData = filterData({name: queryName, scope: filterScope});
+
   const { isLoading: metadataLoading, data: metadata } = useQuery(
     "metadatas",
     fetchMetadata,
     {
       onSuccess(data) {
         setFilterScope("ALL");
+      },
+    }
+  );
+  const { isLoading: envsLoading, data: envs } = useQuery(
+    "envs",
+    fetchEnvs,
+    {
+      onSuccess(data) {
+        setData(data.map((item) => mapScopedEnvToData(item)));
       },
     }
   );
@@ -217,7 +260,7 @@ export default function FeatureFlagsList() {
                   return [
                     <ListSubheader>{m.name}</ListSubheader>,
                     m.options.map((o) => (
-                      <MenuItem key={o.key} value={o.key}>
+                      <MenuItem key={o.key} value={o.name}>
                         {o.name}
                       </MenuItem>
                     )),
@@ -243,7 +286,7 @@ export default function FeatureFlagsList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item) => {
+              {filteredData.map((item) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={item.id}>
                     {columns.map((column) => {

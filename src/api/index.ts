@@ -8,9 +8,25 @@ export interface ScopeMetadata {
   options: { name: string; key: string }[];
 }
 
+export interface ScopeEnv {
+  key: string;
+  name: string;
+  description: string,
+  createdAt: number,
+  type: string,
+  appliesTo: string,
+  value: any
+}
+
 export const fetchMetadata = async (): Promise<ScopeMetadata[]> => {
   return await fetch(`${API_BASE}/metadata`).then(
     async (res) => (await res.json()) as ScopeMetadata[]
+  );
+};
+
+export const fetchEnvs = async (): Promise<ScopeEnv[]> => {
+  return await fetch(`${API_BASE}/env`).then(
+    async (res) => (await res.json()) as ScopeEnv[]
   );
 };
 
