@@ -11,6 +11,7 @@ import Layout from "./components/layout";
 import FeatureFlagsList from "./pages/feature-flag-list";
 import FeatureFlagsNew from "./pages/feature-flag-new";
 import { QueryClient, QueryClientProvider } from "react-query";
+import FeatureFlagsToggles from "./pages/feature-flags-toggle";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/feature-flags/new",
         element: <FeatureFlagsNew />,
+      },
+      {
+        path: "/feature-flags/toggles/:toggleKey",
+        element: <FeatureFlagsToggles />,
       },
     ],
   },

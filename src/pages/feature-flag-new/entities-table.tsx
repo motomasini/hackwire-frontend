@@ -5,34 +5,28 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Account, Project } from "../../api";
 import { Switch, Typography } from "@mui/material";
+import { Account, Project } from "../../api/types";
 
 interface EntityTableProps {
-  type: "ACCOUNT" | "PROJECT";
   entities: (Account | Project)[];
   toggledEntities: (string | number)[];
   onToggle: (id: number | string, remove: boolean) => void;
 }
 
 export default function EntityTable({
-  type,
   entities,
   toggledEntities,
   onToggle,
 }: EntityTableProps) {
   return (
     <TableContainer>
-      <Typography py={5} fontWeight="bold" variant="h4" component="h4">
-        {`${type}S`}
-      </Typography>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Id</TableCell>
-            <TableCell align="right">
-              {type === "ACCOUNT" ? "Owner" : "Name"}
-            </TableCell>
+            <TableCell align="right">Type</TableCell>
+            <TableCell align="right">Owner / Name</TableCell>
             <TableCell align="right">Toggle</TableCell>
           </TableRow>
         </TableHead>
@@ -51,6 +45,9 @@ export default function EntityTable({
               >
                 <TableCell component="th" scope="row">
                   {entity.id}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {!!(entity as any).owner ? "ACCOUNT" : "PROJECT"}
                 </TableCell>
                 <TableCell component="th" scope="row" align="right">
                   {(entity as any).owner

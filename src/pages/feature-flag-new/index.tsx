@@ -13,18 +13,19 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useRef } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import {
   fetchAccounts,
   fetchMetadata,
   fetchProjects,
+  postEnv,
+  PostEnvBody,
   ScopeMetadata,
   ScopeType,
 } from "../../api";
-import EntityTable from "./entities-table";
-
+import { removeDiacritics } from "../../utils/remove_diacritics";
+import { redirect, useNavigate } from "react-router-dom";
 interface EntityInput {
   entityType: "PROJECT" | "ACCOUNT";
   id: string | number;
@@ -34,7 +35,7 @@ interface Inputs {
   desc: string;
   scope: string;
   value: boolean;
-  entities: EntityInput[];
+  //   entities: EntityInput[];
 }
 const INPUT_MIN_WIDTH = 500;
 
@@ -45,13 +46,22 @@ interface MetadataTypeByKey {
 function mapMetadataTypes(metadatas: ScopeMetadata[]) {
   return metadatas.reduce((carry, metadata) => {
     for (const op of metadata.options) {
-      carry[op.key] = metadata.type;
+      carry[op.name] = metadata.type;
     }
     return carry;
   }, {} as MetadataTypeByKey);
 }
 
+function namify(str: string) {
+  const underscoreChars = [" ", "-", "(", ")"];
+  if (underscoreChars.includes(str[str.length - 1])) {
+    return `${str.slice(0, -1)}_`;
+  } else {
+    return removeDiacritics(str).toUpperCase();
+  }
+}
 export default function FeatureFlagsNew() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -65,7 +75,21 @@ export default function FeatureFlagsNew() {
       desc: "",
       scope: "",
       value: false,
-      entities: [],
+      //   entities: [],
+    },
+  });
+  const mutation = useMutation((data: PostEnvBody) => postEnv(data), {
+    onSuccess(data, variables, context) {
+      if (variables.type === "BASIC") {
+        console.log("sould redirect");
+        navigate("/feature-flags");
+      } else {
+        console.log("sould redirect");
+        navigate(
+          `/feature-flags/toggles/${encodeURIComponent(data.toggleSortKey)}`
+        );
+      }
+      //   console.log(data, variables, context);
     },
   });
   const { isLoading: metadataLoading, data: metadata } = useQuery(
@@ -88,19 +112,36 @@ export default function FeatureFlagsNew() {
     fetchAccounts
   );
   const scope = watch("scope");
-  const entities = watch("entities");
+  //   const entities = watch("entities");
 
-  const currentEntityType = useRef({ lastEntityType: scope });
+  //   const currentEntityType = useRef({ lastEntityType: scope });
 
-  if (currentEntityType.current.lastEntityType !== scope) {
-    setValue("entities", []);
-    currentEntityType.current.lastEntityType = scope;
-  }
+  //   if (currentEntityType.current.lastEntityType !== scope) {
+  //     setValue("entities", []);
+  //     currentEntityType.current.lastEntityType = scope;
+  //   }
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = (formData) => {
+    console.log(formData.scope);
+    const type = mapMetadataTypes(metadata!)[formData.scope];
+    const data: Partial<PostEnvBody> = {
+      name: formData.name,
+      description: formData.desc,
+      secret: false,
+      type,
+    };
+    if (data.type === "BASIC") {
+      data.value = formData.value;
+      data.appliesTo = formData.scope;
+    } else if (data.type === "TOGGLE") {
+      data.toggle = {
+        toggleType: "RELEASE_TOGGLE",
+        applieTo: "GRANULAR",
+      };
+    }
+    mutation.mutate(data as PostEnvBody);
   };
-  
+
   return (
     <>
       <Box>
@@ -110,19 +151,23 @@ export default function FeatureFlagsNew() {
       </Box>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <Box pl={2} py={5} component="form" onSubmit={handleSubmit(onSubmit)}>
-          <Box py={5}>
-            <Button disabled={!metadata && isValid} variant="contained" type="submit">
-              Submit
-            </Button>
-          </Box>
           <Grid container rowSpacing={3}>
             <Grid item xs={12}>
-              <TextField
-                {...register("name")}
-                sx={{ minWidth: INPUT_MIN_WIDTH }}
-                required
-                label="Name"
-                defaultValue=""
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(namify(e.currentTarget.value))
+                    }
+                    sx={{ minWidth: INPUT_MIN_WIDTH }}
+                    required
+                    label="Name"
+                  />
+                )}
               />
             </Grid>
             <Grid item xs={12}>
@@ -152,7 +197,7 @@ export default function FeatureFlagsNew() {
                         return [
                           <ListSubheader>{m.name}</ListSubheader>,
                           m.options.map((o) => (
-                            <MenuItem key={o.key} value={o.key}>
+                            <MenuItem key={o.key} value={o.name}>
                               {o.name}
                             </MenuItem>
                           )),
@@ -162,7 +207,7 @@ export default function FeatureFlagsNew() {
                   </FormControl>
                 )}
               />
-              {metadata && mapMetadataTypes(metadata)[scope] === "basic" && (
+              {metadata && mapMetadataTypes(metadata)[scope] === "BASIC" && (
                 <Grid item py={2}>
                   <FormControlLabel
                     control={<Switch {...register("value")} />}
@@ -172,7 +217,7 @@ export default function FeatureFlagsNew() {
                 </Grid>
               )}
             </Grid>
-            {["ACCOUNT", "PROJECT"].includes(scope) && accounts && projects && (
+            {/* {["ACCOUNT", "PROJECT"].includes(scope) && accounts && projects && (
               <EntityTable
                 type={scope as any}
                 toggledEntities={entities.map((e) => e.id)}
@@ -191,8 +236,17 @@ export default function FeatureFlagsNew() {
                   }
                 }}
               />
-            )}
+            )} */}
           </Grid>
+          <Box py={5}>
+            <Button
+              disabled={!metadata && isValid}
+              variant="contained"
+              type="submit"
+            >
+              Submit
+            </Button>
+          </Box>
         </Box>
       </Paper>
     </>
