@@ -71,7 +71,7 @@ export const fetchMetadata = async (): Promise<ScopeMetadata[]> => {
 
     for (const meta of r) {
       if (meta.name === "Granular") {
-        meta.options = [{ name: "GRANULAR", key: "GRANULAR" }];
+        meta.options = [{ name: "PROJECT/ACCOUNT", key: "GRANULAR" }];
       }
     }
     return r;

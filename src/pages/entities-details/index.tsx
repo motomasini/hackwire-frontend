@@ -61,7 +61,8 @@ export default function EntitiesDetails() {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>PK</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell align="right">PK</TableCell>
               <TableCell align="right">SK</TableCell>
               <TableCell align="right">value</TableCell>
             </TableRow>
@@ -73,6 +74,9 @@ export default function EntitiesDetails() {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
+                  {detail.name}
+                </TableCell>
+                <TableCell align="right" component="th" scope="row">
                   {detail.PK}
                 </TableCell>
                 <TableCell align="right">{detail.SK}</TableCell>
