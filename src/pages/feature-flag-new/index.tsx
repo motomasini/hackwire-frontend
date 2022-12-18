@@ -159,6 +159,7 @@ export default function FeatureFlagsNew() {
                 rules={{ required: true }}
                 render={({ field }) => (
                   <TextField
+                    size="small"
                     {...field}
                     onChange={(e) =>
                       field.onChange(namify(e.currentTarget.value))
@@ -172,6 +173,7 @@ export default function FeatureFlagsNew() {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                size="small"
                 sx={{ minWidth: INPUT_MIN_WIDTH }}
                 {...register("desc")}
                 label="Description"
@@ -188,6 +190,7 @@ export default function FeatureFlagsNew() {
                 rules={{ required: true }}
                 render={({ field }) => (
                   <FormControl
+                    size="small"
                     sx={{ minWidth: INPUT_MIN_WIDTH }}
                     disabled={metadataLoading}
                   >

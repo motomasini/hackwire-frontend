@@ -11,6 +11,8 @@ export const fetchEnvs = async (): Promise<(ToggleFF | BasicFF)[]> => {
   );
 };
 
+// export const
+
 export const fetchEnvEntities = async (toggleKey: string) => {
   return await fetch(
     `${API_BASE}/env-entity/${encodeURIComponent(toggleKey)}`

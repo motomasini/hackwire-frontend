@@ -25,6 +25,12 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Envs" />
     </ListItemButton>
+    <ListItemButton component={Link} to={"/entities"}>
+      <ListItemIcon>
+        <LayersIcon />
+      </ListItemIcon>
+      <ListItemText primary="Entities" />
+    </ListItemButton>
   </React.Fragment>
 );
 

@@ -16,7 +16,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./layout-menu";
 import { Outlet } from "react-router-dom";
-
+import FieldwireLogo from "./fieldwire-logo";
 
 const drawerWidth: number = 240;
 
@@ -67,8 +67,22 @@ const Drawer = styled(MuiDrawer, {
     }),
   },
 }));
-
-const mdTheme = createTheme();
+declare module "@mui/material/styles" {
+  interface Palette {
+    neutral: Palette["primary"];
+  }
+  interface PaletteOptions {
+    neutral: PaletteOptions["primary"];
+  }
+}
+const mdTheme = createTheme({
+  palette: {
+    neutral: {
+      main: "#FFF",
+      contrastText: "#ccc",
+    },
+  },
+});
 
 export default function Layout() {
   const [open, setOpen] = React.useState(true);
@@ -83,6 +97,7 @@ export default function Layout() {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
+              backgroundColor: "#353a43",
               pr: "24px", // keep right padding when drawer closed
             }}
           >
@@ -98,27 +113,25 @@ export default function Layout() {
             >
               <MenuIcon />
             </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Fieldwire Admin V2
-            </Typography>
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <FieldwireLogo />{" "}
+              <Typography ml={1} variant="caption" sx={{ display: "block" }}>
+                Admin V2
+              </Typography>
+            </Box>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
           <Toolbar
             sx={{
+              backgroundColor: "#353a43",
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
               px: [1],
             }}
           >
-            <IconButton onClick={toggleDrawer}>
+            <IconButton color={"neutral" as any} onClick={toggleDrawer}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>

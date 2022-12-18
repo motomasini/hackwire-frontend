@@ -103,15 +103,19 @@ export default function FeatureFlagsList() {
         <Box sx={{ display: "flex" }}>
           <Box pt={5} pb={2} pl={2}>
             <TextField
-              id="outlined-read-only-input"
+              size="small"
               label="Filter by name"
               value={queryName}
               onChange={(e) => setQueryName(e.currentTarget.value)}
             />
           </Box>
           <Box pt={5} pb={2} pl={2}>
-            <FormControl sx={{ minWidth: 200 }} disabled={metadataLoading}>
-              <InputLabel id="demo-simple-select-label">Scope</InputLabel>
+            <FormControl
+              size="small"
+              sx={{ minWidth: 200 }}
+              disabled={metadataLoading}
+            >
+              <InputLabel>Scope</InputLabel>
               <Select
                 value={filterScope}
                 label="Scope"
