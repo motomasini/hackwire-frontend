@@ -1,3 +1,4 @@
+import { wait } from "../utils/wait";
 import { ToggleFF, BasicFF, Account, Project } from "./types";
 
 const API_BASE = "http://localhost:8009";
@@ -17,6 +18,23 @@ export const fetchEntityDetails = async (type: string, id: string | number) => {
   );
 };
 
+export const updateEnv = async (
+  key: string,
+  body: { value: string; appliedTo: string }
+) => {
+  return await fetch(`${API_BASE}/env/${encodeURIComponent(key)}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  }).then(async () => {
+    await wait(200); // Latency with the update
+    return "ok";
+  });
+};
+
 export const fetchEnvEntities = async (toggleKey: string) => {
   return await fetch(
     `${API_BASE}/env-entity/${encodeURIComponent(toggleKey)}`
@@ -29,7 +47,7 @@ export interface EnvEntityBody {
   toggleSortKey: string;
 }
 export const postEnvEntity = async (envEntityBody: EnvEntityBody) => {
-  console.log(envEntityBody)
+  console.log(envEntityBody);
   return await fetch(`${API_BASE}/env-entity`, {
     method: "POST",
     headers: {

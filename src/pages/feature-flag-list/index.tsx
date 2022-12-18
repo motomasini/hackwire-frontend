@@ -23,8 +23,8 @@ import {
 import { ReactNode, useRef, useState } from "react";
 import Fuse from "fuse.js";
 import { Link } from "react-router-dom";
-import { useQuery } from "react-query";
-import { fetchEnvs, fetchMetadata } from "../../api";
+import { useMutation, useQuery } from "react-query";
+import { fetchEnvs, fetchMetadata, updateEnv } from "../../api";
 import { ToggleFF, BasicFF } from "../../api/types";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -51,12 +51,24 @@ export default function FeatureFlagsList() {
 
   const [queryName, setQueryName] = useState("");
   const [filterScope, setFilterScope] = useState("");
-  const { isLoading: envFetching, data: envs } = useQuery("envs", fetchEnvs, {
+  const {
+    isLoading: envFetching,
+    data: envs,
+    refetch: refetchEnvs,
+  } = useQuery("envs", fetchEnvs, {
     onSuccess(data) {
-      searchRef.current.setCollection(data);
+      searchRef.current.setCollection([...data]);
     },
   });
-
+  const mutation = useMutation(
+    (data: { key: string; body: { appliedTo: string; value: string } }) =>
+      updateEnv(data.key, data.body),
+    {
+      onSuccess(data, variables, context) {
+        refetchEnvs();
+      },
+    }
+  );
   const filterRows = (options: {
     name: string;
     scope: string | "ALL";
@@ -64,7 +76,7 @@ export default function FeatureFlagsList() {
     const res =
       options.name.length > 0
         ? searchRef.current.search(options.name).map((res) => res.item)
-        : envs ?? [];
+        : [...(envs ?? [])];
     if (options.scope.length > 0 && options.scope !== "GRANULAR") {
       return res.filter(
         (i) => i.type === "BASIC" && i.appliesTo === options.scope
@@ -165,7 +177,7 @@ export default function FeatureFlagsList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item) => {
+              {(data || []).map((item) => {
                 return (
                   <TableRow
                     hover
@@ -192,8 +204,16 @@ export default function FeatureFlagsList() {
                     <TableCell>
                       {item.type === "BASIC" ? (
                         <Switch
-                          value={item.value === "true"}
-                          onChange={(v) => console.log(v.currentTarget.value)}
+                          checked={item.value === "true"}
+                          onChange={() =>
+                            mutation.mutate({
+                              key: item.key,
+                              body: {
+                                appliedTo: item.appliesTo,
+                                value: item.value === "true" ? "false" : "true",
+                              },
+                            })
+                          }
                         />
                       ) : (
                         <MuiLink
