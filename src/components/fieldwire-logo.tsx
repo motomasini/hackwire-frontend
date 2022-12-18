@@ -60,8 +60,8 @@ export default function FieldwireLogo() {
           y2="0.874348"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#F9AE31" />
-          <stop offset="1" stop-color="#FDCE35" />
+          <stop stopColor="#F9AE31" />
+          <stop offset="1" stopColor="#FDCE35" />
         </linearGradient>
       </defs>
     </svg>

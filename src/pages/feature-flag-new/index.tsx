@@ -122,7 +122,6 @@ export default function FeatureFlagsNew() {
   //   }
 
   const onSubmit: SubmitHandler<Inputs> = (formData) => {
-    console.log(formData.scope);
     const type = mapMetadataTypes(metadata!)[formData.scope];
     const data: Partial<PostEnvBody> = {
       name: formData.name,

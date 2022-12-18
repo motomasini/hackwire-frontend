@@ -11,7 +11,11 @@ export const fetchEnvs = async (): Promise<(ToggleFF | BasicFF)[]> => {
   );
 };
 
-// export const
+export const fetchEntityDetails = async (type: string, id: string | number) => {
+  return await fetch(`${API_BASE}/env-entity/entities/${id}?type=${type}`).then(
+    async (res) => await res.json()
+  );
+};
 
 export const fetchEnvEntities = async (toggleKey: string) => {
   return await fetch(
@@ -25,6 +29,7 @@ export interface EnvEntityBody {
   toggleSortKey: string;
 }
 export const postEnvEntity = async (envEntityBody: EnvEntityBody) => {
+  console.log(envEntityBody)
   return await fetch(`${API_BASE}/env-entity`, {
     method: "POST",
     headers: {
@@ -45,7 +50,7 @@ export interface ScopeMetadata {
 export const fetchMetadata = async (): Promise<ScopeMetadata[]> => {
   return await fetch(`${API_BASE}/metadata`).then(async (res) => {
     const r = (await res.json()) as ScopeMetadata[];
-    console.log(r);
+
     for (const meta of r) {
       if (meta.name === "Granular") {
         meta.options = [{ name: "GRANULAR", key: "GRANULAR" }];

@@ -18,14 +18,16 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Link as MuiLink,
 } from "@mui/material";
 import { ReactNode, useRef, useState } from "react";
 import Fuse from "fuse.js";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-query";
-import React from "react";
 import { fetchEnvs, fetchMetadata } from "../../api";
 import { ToggleFF, BasicFF } from "../../api/types";
+import EditIcon from "@mui/icons-material/Edit";
+
 faker.seed(123);
 
 interface Column {
@@ -190,11 +192,18 @@ export default function FeatureFlagsList() {
                     <TableCell>
                       {item.type === "BASIC" ? (
                         <Switch
-                          disabled
-                          defaultChecked={item.value === "true"}
+                          value={item.value === "true"}
+                          onChange={(v) => console.log(v.currentTarget.value)}
                         />
                       ) : (
-                        ""
+                        <MuiLink
+                          component={Link}
+                          to={`/feature-flags/toggles/${encodeURIComponent(
+                            item.toggle.toggleSortKey
+                          )}`}
+                        >
+                          <EditIcon />
+                        </MuiLink>
                       )}
                     </TableCell>
                   </TableRow>
@@ -207,3 +216,5 @@ export default function FeatureFlagsList() {
     </>
   );
 }
+
+function LinkIconButton() {}

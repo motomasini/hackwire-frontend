@@ -12,7 +12,9 @@ import FeatureFlagsList from "./pages/feature-flag-list";
 import FeatureFlagsNew from "./pages/feature-flag-new";
 import { QueryClient, QueryClientProvider } from "react-query";
 import FeatureFlagsToggles from "./pages/feature-flags-toggle";
-import { EntityList } from "./pages/entity-list";
+import Accounts from "./pages/accounts";
+import Projects from "./pages/projects";
+import EntitiesDetails from "./pages/entities-details";
 
 const router = createBrowserRouter([
   {
@@ -28,8 +30,16 @@ const router = createBrowserRouter([
         element: <FeatureFlagsList />,
       },
       {
-        path: "/entities",
-        element: <EntityList />,
+        path: "/accounts",
+        element: <Accounts />,
+      },
+      {
+        path: "/projects",
+        element: <Projects />,
+      },
+      {
+        path: "/entities/details/:type/:id",
+        element: <EntitiesDetails />,
       },
       {
         path: "/feature-flags/new",

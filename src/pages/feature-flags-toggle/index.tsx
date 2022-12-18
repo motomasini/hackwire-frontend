@@ -56,7 +56,7 @@ export default function FeatureFlagsToggles() {
   const entities =
     filterType === "ALL"
       ? [...(accounts ?? []), ...(projects ?? [])]
-      : filterType === "PROJECTS"
+      : filterType === "PROJECT"
       ? [...(projects ?? [])]
       : [...(accounts ?? [])];
 
@@ -81,26 +81,34 @@ export default function FeatureFlagsToggles() {
           >
             <FormControlLabel value="ALL" control={<Radio />} label="All" />
             <FormControlLabel
-              value="ACCOUNTS"
+              value="ACCOUNT"
               control={<Radio />}
               label="Accounts"
             />
             <FormControlLabel
-              value="PROJECTS"
+              value="PROJECT"
               control={<Radio />}
               label="Projects"
             />
           </RadioGroup>
           <EntityTable
-            onToggle={(id, remove) => {
+            onToggle={(id, remove, entityType) => {
               mutation.mutate({
-                entityId: id,
-                entityType: typeof id === "string" ? "PROJECT" : "ACCOUNT",
-                value: "true",
+                entityId: id.toString(),
+                entityType,
+                value: (!remove).toString() as "true" | "false",
                 toggleSortKey: toggleKey!,
               });
             }}
-            toggledEntities={envEntity.map((e: any) => e.entityId)}
+            toggledEntities={envEntity
+              .filter((e: any) =>
+                filterType === "ALL" ? true : filterType === e.entityType
+              )
+              .map((e: any) => ({
+                id: e.entityId,
+                value: e.value,
+                type: e.entityType,
+              }))}
             entities={entities}
           />
         </Box>
