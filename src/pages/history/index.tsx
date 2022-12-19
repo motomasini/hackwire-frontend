@@ -31,7 +31,7 @@ function Row({ data }: any) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" align="right">
           {data.event}
         </TableCell>
         <TableCell align="right" component="th" scope="row">
