@@ -19,6 +19,8 @@ import {
   Tooltip,
   Typography,
   Link as MuiLink,
+  IconButton,
+  InputBase,
 } from "@mui/material";
 import { ReactNode, useRef, useState } from "react";
 import Fuse from "fuse.js";
@@ -27,7 +29,8 @@ import { useMutation, useQuery } from "react-query";
 import { fetchEnvs, fetchMetadata, updateEnv } from "../../api";
 import { ToggleFF, BasicFF } from "../../api/types";
 import EditIcon from "@mui/icons-material/Edit";
-
+import { TextFields } from "@mui/icons-material";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 faker.seed(123);
 
 interface Column {
@@ -113,7 +116,7 @@ export default function EnvVariables() {
       >
         <Box>
           <Typography pb={5} fontWeight="bold" variant="h2" component="h2">
-           Env Variable
+            Env Variable
           </Typography>
         </Box>
         <Box>
@@ -195,43 +198,52 @@ export default function EnvVariables() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(data || []).map((item) => {
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={`${item.key}_${item.createdAt}`}
-                  >
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>
-                      <Tooltip title={item.description}>
-                        <Typography variant="body2">
-                          {truncateString(item.description ?? "", 20)}
-                        </Typography>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>
-                      {item.type === "BASIC"
-                        ? item.appliesTo
-                        : item.toggle.appliesTo}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(item.createdAt * 1000).toUTCString()}
-                    </TableCell>
-                    <TableCell>
-                      {item.type === "BASIC" && (
-                        <Typography variant="caption">{item.value}</Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <MuiLink component={Link} to={`/history/${item.name}`}>
-                        history
-                      </MuiLink>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {(data || []).map((item) => (
+                <TableRow
+                  hover
+                  role="checkbox"
+                  tabIndex={-1}
+                  key={`${item.key}_${item.createdAt}`}
+                >
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    <Tooltip title={item.description}>
+                      <Typography variant="body2">
+                        {truncateString(item.description ?? "", 20)}
+                      </Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    {item.type === "BASIC"
+                      ? item.appliesTo
+                      : item.toggle.appliesTo}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(item.createdAt * 1000).toUTCString()}
+                  </TableCell>
+                  <TableCell>
+                    {item.type === "BASIC" && (
+                      <FieldWithSubmit
+                        value={item.value}
+                        onSubmit={(value: string) =>
+                          mutation.mutate({
+                            key: item.key,
+                            body: {
+                              appliedTo: item.appliesTo,
+                              value,
+                            },
+                          })
+                        }
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <MuiLink component={Link} to={`/history/${item.name}`}>
+                      history
+                    </MuiLink>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -240,4 +252,23 @@ export default function EnvVariables() {
   );
 }
 
-function LinkIconButton() {}
+function FieldWithSubmit({ value, onSubmit }: any) {
+  const [fieldValue, setFieldValue] = useState(value);
+  return (
+    <>
+      <InputBase
+        sx={{ ml: 1, flex: 1, backgroundColor: "#f5f5f5", py: 1, px: 2 }}
+        value={fieldValue}
+        onChange={(e) => setFieldValue(e.currentTarget.value)}
+      />
+      <IconButton
+        onClick={() => onSubmit(fieldValue)}
+        type="button"
+        sx={{ p: 0 }}
+        color="primary"
+      >
+        <KeyboardReturnIcon />
+      </IconButton>
+    </>
+  );
+}
