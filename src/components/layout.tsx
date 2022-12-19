@@ -86,6 +86,7 @@ const mdTheme = createTheme({
 
 export default function Layout() {
   const [open, setOpen] = React.useState(true);
+  const [showEnv, setShowEnv] = React.useState(false);
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -113,7 +114,7 @@ export default function Layout() {
             >
               <MenuIcon />
             </IconButton>
-            <Box display="flex" justifyContent="center" alignItems="center">
+            <Box display="flex" justifyContent="center" alignItems="center" style={{cursor: 'pointer'}} onClick={() => setShowEnv(!showEnv)}>
               <FieldwireLogo />{" "}
               <Typography ml={1} variant="caption" sx={{ display: "block" }}>
                 Admin V2
@@ -137,9 +138,9 @@ export default function Layout() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            {mainListItems(showEnv)}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {/* {secondaryListItems} */}
           </List>
         </Drawer>
         <Box

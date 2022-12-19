@@ -3,11 +3,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PeopleIcon from "@mui/icons-material/People";
-import WorkIcon from '@mui/icons-material/Work';
+import WorkIcon from "@mui/icons-material/Work";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { Link } from "react-router-dom";
-
-export const mainListItems = (
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+export const mainListItems = (withEnv = false) => (
   <React.Fragment>
     {/* <ListItemButton component={Link} to={"/"}>
       <ListItemIcon>
@@ -21,6 +21,14 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Feature Flags" />
     </ListItemButton>
+    {withEnv && (
+      <ListItemButton component={Link} to={"/envvar"}>
+        <ListItemIcon>
+          <CardGiftcardIcon />
+        </ListItemIcon>
+        <ListItemText primary="Env Variables" />
+      </ListItemButton>
+    )}
     <ListItemButton component={Link} to={"/accounts"}>
       <ListItemIcon>
         <PeopleIcon />

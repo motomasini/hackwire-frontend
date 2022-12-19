@@ -17,6 +17,8 @@ import Projects from "./pages/projects";
 import EntitiesDetails from "./pages/entities-details";
 import History from "./pages/history";
 import ExperimentNew from "./pages/experiment-new";
+import EnvVariableNew from "./pages/env-variables-new";
+import EnvVariables from "./pages/env-variables";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +56,14 @@ const router = createBrowserRouter([
       {
         path: "/experiment/new",
         element: <ExperimentNew />,
+      },
+      {
+        path: "/envvar/new",
+        element: <EnvVariableNew />,
+      },
+      {
+        path: "/envvar",
+        element: <EnvVariables />,
       },
       {
         path: "/feature-flags/toggles/:toggleKey",

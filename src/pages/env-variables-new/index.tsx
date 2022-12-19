@@ -34,9 +34,7 @@ interface Inputs {
   name: string;
   desc: string;
   scope: string;
-  operator: "IN";
-  begin: string;
-  end: string;
+  value: string;
   //   entities: EntityInput[];
 }
 const INPUT_MIN_WIDTH = 500;
@@ -62,7 +60,7 @@ function namify(str: string) {
     return removeDiacritics(str).toUpperCase();
   }
 }
-export default function ExperimentNew() {
+export default function EnvVariablesNew() {
   const navigate = useNavigate();
   const {
     register,
@@ -76,14 +74,13 @@ export default function ExperimentNew() {
       name: "",
       desc: "",
       scope: "",
-      begin: "",
-      end: "",
-      operator: "IN",
+      value: "",
+      //   entities: [],
     },
   });
   const mutation = useMutation((data: PostEnvBody) => postEnv(data), {
     onSuccess(data, variables, context) {
-      navigate("/feature-flags");
+      navigate("/envvar");
     },
   });
   const { isLoading: metadataLoading, data: metadata } = useQuery(
@@ -111,29 +108,24 @@ export default function ExperimentNew() {
   const scope = watch("scope");
 
   const onSubmit: SubmitHandler<Inputs> = (formData) => {
+    const type = mapMetadataTypes(metadata!)[formData.scope];
     const data = {
       name: formData.name,
-      type: "TOGGLE",
       description: formData.desc,
       secret: false,
-      toggle: {
-        toggleType: "EXPERIMENT_TOGGLE",
-        appliesTo: formData.scope,
-        data: {
-          operator: formData.operator,
-          begin: parseInt(formData.begin),
-          end: parseInt(formData.end),
-        },
-      },
+      type,
+      value: formData.value,
+      appliesTo: formData.scope,
     };
-    mutation.mutate(data as unknown as PostEnvBody);
+
+    mutation.mutate(data as PostEnvBody);
   };
 
   return (
     <>
       <Box>
         <Typography pb={5} fontWeight="bold" variant="h2" component="h2">
-          Experiment Toggle
+          Env Variable
         </Typography>
       </Box>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -197,36 +189,16 @@ export default function ExperimentNew() {
                   </FormControl>
                 )}
               />
-              <Grid container py={2}>
-                <Typography></Typography>
-                <Grid minWidth={100}>
-                  <Controller
-                    name="operator"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Select {...field} fullWidth label="Operator">
-                        <MenuItem value="IN">Between</MenuItem>
-                      </Select>
-                    )}
-                  />
-                </Grid>
-                <Grid mx={2}>
-                  <TextField {...register("begin")} label="Start account id" />
-                </Grid>
-                <Grid>
-                  <TextField {...register("end")} label="End account id" />
-                </Grid>
+              <Grid item py={2}>
+                <TextField
+                  size="small"
+                  sx={{ minWidth: INPUT_MIN_WIDTH }}
+                  {...register("value")}
+                  label="Value"
+                  required
+                  defaultValue=""
+                />
               </Grid>
-              {/* {metadata && mapMetadataTypes(metadata)[scope] === "BASIC" && (
-                <Grid item py={2}>
-                  <FormControlLabel
-                    control={<Switch {...register("value")} />}
-                    label="Value"
-                    labelPlacement="start"
-                  />
-                </Grid>
-              )} */}
             </Grid>
             {/* {["ACCOUNT", "PROJECT"].includes(scope) && accounts && projects && (
                 <EntityTable

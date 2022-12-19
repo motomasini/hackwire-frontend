@@ -44,7 +44,7 @@ function truncateString(str: string, num: number) {
   return str.slice(0, num) + "...";
 }
 
-export default function FeatureFlagsList() {
+export default function EnvVariables() {
   const searchRef = useRef(
     new Fuse<ToggleFF | BasicFF>([], { keys: ["name"] })
   );
@@ -58,7 +58,7 @@ export default function FeatureFlagsList() {
   } = useQuery("envs", fetchEnvs, {
     select(data) {
       return data.filter((v) =>
-        v.type === "TOGGLE" ? true : ["true", "false"].includes(v.value)
+        v.type === "TOGGLE" ? false : !["true", "false"].includes(v.value)
       );
     },
     onSuccess(data) {
@@ -98,7 +98,12 @@ export default function FeatureFlagsList() {
   });
   const { isLoading: metadataLoading, data: metadata } = useQuery(
     "metadatas",
-    fetchMetadata
+    fetchMetadata,
+    {
+      select(data) {
+        return data.filter((m) => m.name !== "Granular");
+      },
+    }
   );
   return (
     <>
@@ -108,13 +113,10 @@ export default function FeatureFlagsList() {
       >
         <Box>
           <Typography pb={5} fontWeight="bold" variant="h2" component="h2">
-            Feature Flags
+           Env Variable
           </Typography>
         </Box>
         <Box>
-          <Button component={Link} variant="contained" to="/experiment/new">
-            Create New Experiment Toggle
-          </Button>
           <Button
             style={{ marginLeft: 10 }}
             component={Link}
@@ -218,47 +220,8 @@ export default function FeatureFlagsList() {
                       {new Date(item.createdAt * 1000).toUTCString()}
                     </TableCell>
                     <TableCell>
-                      {item.type === "BASIC" ? (
-                        <Switch
-                          checked={item.value === "true"}
-                          onChange={() =>
-                            mutation.mutate({
-                              key: item.key,
-                              body: {
-                                appliedTo: item.appliesTo,
-                                value: item.value === "true" ? "false" : "true",
-                              },
-                            })
-                          }
-                        />
-                      ) : item.toggle.data ? (
-                        <>
-                          <Typography variant="caption">
-                            {item.toggle.data.operator === "IN"
-                              ? "Range: "
-                              : item.toggle.data.operator}
-                          </Typography>
-                          <Typography variant="caption">
-                            {item.toggle.data.begin}
-                          </Typography>
-                          <Typography variant="caption">
-                            {item.toggle.data.operator === "IN"
-                              ? "..."
-                              : item.toggle.data.operator}
-                          </Typography>
-                          <Typography variant="caption">
-                            {item.toggle.data.end}
-                          </Typography>
-                        </>
-                      ) : (
-                        <MuiLink
-                          component={Link}
-                          to={`/feature-flags/toggles/${encodeURIComponent(
-                            item.toggle.toggleSortKey
-                          )}`}
-                        >
-                          <EditIcon />
-                        </MuiLink>
+                      {item.type === "BASIC" && (
+                        <Typography variant="caption">{item.value}</Typography>
                       )}
                     </TableCell>
                     <TableCell>
