@@ -127,6 +127,11 @@ export interface Toggle {
   toggleSortKey: string;
   toggleType: string;
   appliesTo: string;
+  data?: {
+    begin: number;
+    end: number;
+    operator: "IN";
+  };
 }
 export interface ToggleFF {
   key: string;

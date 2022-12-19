@@ -107,7 +107,15 @@ export default function FeatureFlagsList() {
           </Typography>
         </Box>
         <Box>
-          <Button component={Link} variant="contained" to="new">
+          <Button component={Link} variant="contained" to="/experiment/new">
+            Create New Experiment Toggle
+          </Button>
+          <Button
+            style={{ marginLeft: 10 }}
+            component={Link}
+            variant="contained"
+            to="new"
+          >
             Create New
           </Button>
         </Box>
@@ -218,6 +226,25 @@ export default function FeatureFlagsList() {
                             })
                           }
                         />
+                      ) : item.toggle.data ? (
+                        <>
+                          <Typography variant="caption">
+                            {item.toggle.data.operator === "IN"
+                              ? "Range: "
+                              : item.toggle.data.operator}
+                          </Typography>
+                          <Typography variant="caption">
+                            {item.toggle.data.begin}
+                          </Typography>
+                          <Typography variant="caption">
+                            {item.toggle.data.operator === "IN"
+                              ? "..."
+                              : item.toggle.data.operator}
+                          </Typography>
+                          <Typography variant="caption">
+                            {item.toggle.data.end}
+                          </Typography>
+                        </>
                       ) : (
                         <MuiLink
                           component={Link}

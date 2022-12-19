@@ -16,6 +16,7 @@ import Accounts from "./pages/accounts";
 import Projects from "./pages/projects";
 import EntitiesDetails from "./pages/entities-details";
 import History from "./pages/history";
+import ExperimentNew from "./pages/experiment-new";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "/feature-flags/new",
         element: <FeatureFlagsNew />,
+      },
+      {
+        path: "/experiment/new",
+        element: <ExperimentNew />,
       },
       {
         path: "/feature-flags/toggles/:toggleKey",
