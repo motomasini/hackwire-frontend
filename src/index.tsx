@@ -15,6 +15,7 @@ import FeatureFlagsToggles from "./pages/feature-flags-toggle";
 import Accounts from "./pages/accounts";
 import Projects from "./pages/projects";
 import EntitiesDetails from "./pages/entities-details";
+import History from "./pages/history";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "/projects",
         element: <Projects />,
+      },
+      {
+        path: "/history/:name",
+        element: <History />,
       },
       {
         path: "/entities/details/:type/:id",

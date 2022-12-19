@@ -174,6 +174,9 @@ export default function FeatureFlagsList() {
                 <TableCell align="left" style={{ minWidth: 100 }}>
                   Value
                 </TableCell>
+                <TableCell align="left" style={{ minWidth: 100 }}>
+                  History
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -225,6 +228,11 @@ export default function FeatureFlagsList() {
                           <EditIcon />
                         </MuiLink>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <MuiLink component={Link} to={`/history/${item.name}`}>
+                        history
+                      </MuiLink>
                     </TableCell>
                   </TableRow>
                 );

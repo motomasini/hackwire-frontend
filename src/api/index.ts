@@ -17,7 +17,11 @@ export const fetchEntityDetails = async (type: string, id: string | number) => {
     async (res) => await res.json()
   );
 };
-
+export const fetchHistory  = async (name: string) => {
+  return await fetch(`${API_BASE}/history/${name}`).then(
+    async (res) => await res.json()
+  );
+}
 export const updateEnv = async (
   key: string,
   body: { value: string; appliedTo: string }
