@@ -257,7 +257,7 @@ function FieldWithSubmit({ value, onSubmit }: any) {
   return (
     <>
       <InputBase
-        sx={{ ml: 1, flex: 1, backgroundColor: "#f5f5f5", py: 1, px: 2 }}
+        sx={{ ml: 1, flex: 1, backgroundColor: "#f5f5f5", py: 1, px: 2, borderRadius: '5px' }}
         value={fieldValue}
         onChange={(e) => setFieldValue(e.currentTarget.value)}
       />
